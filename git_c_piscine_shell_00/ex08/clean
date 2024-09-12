@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# This line looks for all the files that matches the naming rule and removes them
+# Firstly, we search for files (-type f) that have a matching name (rules: a. Name ends with "~" char, b. Name starts and ends with "#" char). (-name "*~" -o -name "#*#" (worth mentioning is that "-o" flag doesn´t stand for "output", but for "or")).
+# Then we use the flag "-print" to print all the files for deletion.
+# Lastly, we delete all the found files.
+find . -type f \( -name "*~" -o -name "#*#" \) -print -delete
+
