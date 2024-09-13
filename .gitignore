@@ -1,0 +1,7 @@
+# exeutables
+*.exe
+*.out
+*.app
+
+# tests
+test/

@@ -1,45 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_rev_int_tab.c                                   :+:      :+:    :+:   */
+/*   ft_strlen.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: joleksia <joleksia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/08/23 09:37:02 by joleksia          #+#    #+#             */
-/*   Updated: 2024/08/23 09:47:16 by joleksia         ###   ########.fr       */
+/*   Created: 2024/08/23 09:32:22 by joleksia          #+#    #+#             */
+/*   Updated: 2024/08/23 09:36:21 by joleksia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-void	ft_rev_int_tab(int *tab, int size)
+int	ft_strlen(char *str)
 {
-	int	i;
-	int	temp;
+	int	result;
 
-	i = -1;
-	temp = 0;
-	while (++i < size / 2)
+	result = 0;
+	while (str[result] != '\0')
 	{
-		temp = tab[i];
-		tab[i] = tab[size - i - 1];
-		tab[size - i - 1] = temp;
+		result++;
 	}
-}
-
-int main() {
-	int tab[] = {
-		10,
-		9,
-		8,
-		7,
-		6,
-		5,
-		4,
-		3,
-		2,
-		1,
-		0,
-		22
-	};
-
-	ft_rev_int_tab(tab, sizeof(tab) / sizeof(int));
+	return (result);
 }

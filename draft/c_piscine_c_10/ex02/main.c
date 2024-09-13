@@ -10,74 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <errno.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdlib.h>
+#include "ft.h"
 #include <fcntl.h>
-
-typedef struct t_filebuf
-{
-	char	*file_name;
-	char	*file_content;
-} t_filebuf;
-
-int	ft_strcmp(char *s1, char *s2)
-{
-	while (*s1 && *s2 && (*s1 == *s2))
-	{
-		s1++;
-		s2++;
-	}
-	return (*s1 - *s2);
-}
-
-int	ft_atoi(char *str)
-{
-	int	result;
-	int	is_negative;
-
-	result = 0;
-	is_negative = -1;
-	while (*str < 32)
-	        str++;
-	while (*str == '-' || *str == '+')
-	{
-		if (*str == '-')
-			is_negative *= -1;
-		str++;
-	}
-	while (*str >= '0' && *str <= '9')
-		result = 10 * result - (*str++ - '0');
-	return (result * is_negative);
-}
-
-int	ft_strlen(char *str)
-{
-	int	result;
-
-	result = 0;
-	while (str[result])
-	{
-		result++;
-	}
-	return (result);
-}
-
-char	*ft_strdup(char *src)
-{
-	char	*result;
-	int		i;
-
-	result = (char *) malloc((ft_strlen(src) + 1) * sizeof(char));
-	if (!result)
-		return (NULL);
-	i = 0;
-	while (*src != '\0')
-		result[i++] = *(src++);
-	result[i] = '\0';
-	return (result);
-}
 
 t_filebuf	*ft_filebuf_init(int file_count)
 {
@@ -91,17 +25,33 @@ t_filebuf	*ft_filebuf_init(int file_count)
 	return (result);
 }
 
+int	ft_filebuf_len(char *filepath)
+{
+	char	c;
+	int		res;
+	int		fd;
+
+	res = 0;
+	fd = open(filepath, O_RDONLY);
+	while (read(fd, &c, 1) > 0)
+		res++;
+	close(fd);
+	return res;
+}
+
 int	ft_filebuf_populate(t_filebuf *filebuf, const char *filepath)
 {
-	char	fbuf[16384];
+	char	*fbuf;
+	int		flen;
 	int		fd;
 
 	fd = open(filepath, O_RDONLY);
 	if (fd < 0)
 		return (0);
-	for(int i = 0; i < 16384; i++)
-		fbuf[i] = 0;
-	read(fd, fbuf, 16384);
+	flen = ft_filebuf_len((char *) filepath);
+	fbuf = (char *) malloc((flen + 1) * sizeof(char));
+	read(fd, fbuf, flen);
+	fbuf[flen] = 0;
 	close(fd);
 
 	filebuf->file_name = ft_strdup((char *) filepath);
@@ -109,6 +59,7 @@ int	ft_filebuf_populate(t_filebuf *filebuf, const char *filepath)
 
 	if (!filebuf->file_content || !filebuf->file_name)
 		return (0);
+	free(fbuf);
 	return (1);
 }
 
@@ -142,7 +93,6 @@ int ft_filebuf_display_content(t_filebuf *filebuf, int limit)
 			write(1, &filebuf->file_content[i], 1);
 			i++;
 		}
-		write(1, "\n", 1);
 		return (1);
 	}
 	write(1, filebuf->file_content, slen);
@@ -169,10 +119,23 @@ int ft_filebuf_unload(t_filebuf **filebufs, int count)
 	return (1);
 }
 
-int ft_error(void)
+int	ft_bytes_to_n_newline(char *str, int n)
 {
-	write(2, strerror(errno), ft_strlen(strerror(errno)));
-	return (1);
+	int	res;
+	int	slen;
+
+	res = 0;
+	slen = ft_strlen(str);
+	while(slen && n + 1)
+	{
+		if(str[slen] == '\n')
+			n--;
+		res++;
+		slen--;
+	}
+	if(res == ft_strlen(str))
+		return 0;
+	return res - 2;
 }
 
 int	main(int argc, const char *argv[])
@@ -196,8 +159,11 @@ int	main(int argc, const char *argv[])
 				if(!ft_filebuf_display_name(&filebuf[i]))
 					return (ft_error());
 			}
-			if(!ft_filebuf_display_content(&filebuf[i], 50))
+			if(!ft_filebuf_display_content(&filebuf[i],
+				ft_bytes_to_n_newline(filebuf[i].file_content, 10)))
 				return (ft_error());
+			if(i < file_count - 1)
+				write(1, "\n", 1);
 		}
 
 		if(!ft_filebuf_unload(&filebuf, file_count))
